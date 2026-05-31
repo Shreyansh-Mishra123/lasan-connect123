@@ -380,7 +380,7 @@ window.fetch = function() {
 
     <script>
         // Global variables initialized explicitly
-	const absolutePortRoot = 'http://localhost:5000';
+	const absolutePortRoot = 'https://lasan-connect123.onrender.com';
         let globalRepositoryCache = [];
         let currentActiveCategoryFilter = 'ALL';
 
@@ -843,7 +843,7 @@ async function syncGlobalRepository() {
 
 	async function loadDashboardMaterials() {
         try {
-            const response = await fetch('http://localhost:5000/api/materials');
+            const response = await fetch('https://lasan-connect123.onrender.com/api/materials');
             
             // Check if the response is actually JSON
             if (!response.ok) throw new Error("Failed to load materials");

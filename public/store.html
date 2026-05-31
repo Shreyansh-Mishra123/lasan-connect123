@@ -110,13 +110,13 @@
         async function fetchLibrary() {
             const grid = document.getElementById('libraryGrid');
             try {
-                const res = await fetch('http://localhost:5000/api/user-library');
+                const res = await fetch('https://lasan-connect123.onrender.com/api/user-library');
                 const files = await res.json();
                 grid.innerHTML = files.length ? '' : '<p class="text-[#666] text-sm">No materials in library yet.</p>';
                 files.forEach(f => {
                     grid.innerHTML += `<div class="bg-[#111] border border-[#222] rounded-md p-5">
                         <h2 class="text-base font-semibold text-white">${f.name}</h2>
-                        <button onclick="downloadAsPdf('http://localhost:5000${f.fileUrl}', '${f.name}')" class="mt-4 text-xs text-blue-400 hover:text-blue-300">Download File</button>
+                        <button onclick="downloadAsPdf('https://lasan-connect123.onrender.com${f.fileUrl}', '${f.name}')" class="mt-4 text-xs text-blue-400 hover:text-blue-300">Download File</button>
                     </div>`;
                 });
             } catch (err) { grid.innerHTML = '<p class="text-red-500 text-sm">Library unavailable.</p>'; }
@@ -125,7 +125,7 @@
         async function fetchStoreMaterials() {
             const storeGrid = document.getElementById('storeGrid');
             try {
-                const response = await fetch('http://localhost:5000/api/materials');
+                const response = await fetch('https://lasan-connect123.onrender.com/api/materials');
                 const materials = await response.json();
                 storeGrid.innerHTML = '';
                 materials.forEach(item => {
@@ -146,11 +146,11 @@
         async function initiateMpesaPayment() {
             if (cart.length === 0) return;
             for (const item of cart) {
-                await fetch('http://localhost:5000/api/record-purchase', {
+                await fetch('https://lasan-connect123.onrender.com/api/record-purchase', {
                     method: 'POST',
                     body: JSON.stringify({ materialId: item.id })
                 });
-                await downloadAsPdf('http://localhost:5000' + item.fileUrl, item.title);
+                await downloadAsPdf('https://lasan-connect123.onrender.com' + item.fileUrl, item.title);
             }
             cart = []; renderCart(); document.getElementById('checkoutPanel').classList.add('hidden');
         }

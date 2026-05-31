@@ -16,7 +16,7 @@ const upload = multer({ dest: 'uploads/' });
 passport.use(new GitHubStrategy({
     clientID: 'YOUR_GITHUB_CLIENT_ID',
     clientSecret: 'YOUR_GITHUB_CLIENT_SECRET',
-    callbackURL: "http://localhost:5000/api/auth/github/callback"
+    callbackURL: "https://lasan-connect123.onrender.com/api/auth/github/callback"
 }, (accessToken, refreshToken, profile, cb) => {
     // Check/Create user in your users table (same as Google logic)
     return cb(null, profile);
@@ -27,7 +27,7 @@ passport.use(new GitHubStrategy({
 passport.use(new AppleStrategy({
     clientID: 'YOUR_APPLE_SERVICE_ID',
     teamID: 'YOUR_APPLE_TEAM_ID',
-    callbackURL: "http://localhost:5000/api/auth/apple/callback",
+    callbackURL: "https://lasan-connect123.onrender.com/api/auth/apple/callback",
     keyID: 'YOUR_APPLE_KEY_ID',
     privateKeyLocation: path.join(__dirname, 'AuthKey.p8'),
     passReqToCallback: true
@@ -36,7 +36,7 @@ passport.use(new AppleStrategy({
 }));
 
 // --- MIDDLEWARE ---
-app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
+app.use(cors({ origin: 'https://lasan-connect123.onrender.com', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -53,7 +53,7 @@ app.use('/uploads', express.static('uploads'));
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:5000/api/auth/google/callback"
+    callbackURL: "https://lasan-connect123.onrender.com/api/auth/google/callback"
 }, (accessToken, refreshToken, profile, cb) => cb(null, profile)));
 
 // LOOK HERE: This is where they are located in your code
@@ -161,4 +161,4 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(5000, () => console.log('📡 Server running on http://localhost:5000'));
+app.listen(5000, () => console.log('📡 Server running on https://lasan-connect123.onrender.com'));
