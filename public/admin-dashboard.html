@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#0b0f19]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Deck | Lasan Portal</title>
+    
+    <link rel="icon" type="image/png" href="/1776759415-161570595069e73277f252e!favicon-512.png">	
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .smooth-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+    
+    <script>
+	const originalFetch = window.fetch;
+window.fetch = function() {
+    let [resource, config] = arguments;
+    
+    // Ensure config exists
+    config = config || {};
+    config.headers = config.headers || {};
+    
+    // Inject the token
+    const token = localStorage.getItem('lasan_token');
+    if (token) {
+        config.headers['Authorization'] = 'Bearer ' + token;
+    }
+    
+    return originalFetch(resource, config);
+};
+        (function() {
+            const activeToken = localStorage.getItem('lasan_token');
+            const activeRole = localStorage.getItem('lasan_role');
+            if (!activeToken || activeRole !== 'admin') {
+                window.location.href = 'admin-login.html';
+            }
+        })();
+    </script>
+</head>
+<body class="h-full text-slate-200 antialiased selection:bg-amber-500/30 flex overflow-hidden">
+
+    <aside class="w-64 bg-[#111827] border-r border-slate-800 flex flex-col justify-between h-full shrink-0 hidden md:flex">
+        <div class="flex flex-col flex-1">
+            <div class="h-16 border-b border-slate-800/80 px-6 flex items-center gap-3 bg-[#0b0f19]/40">
+                <div class="h-8 w-8 bg-amber-600 rounded-lg flex items-center justify-center shadow-md shadow-amber-600/10">
+                    <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold tracking-tight text-white">LasanPortal</span>
+                    <span class="text-[9px] text-amber-500 font-mono tracking-wider uppercase font-bold">Terminal Root</span>
+                </div>
+            </div>
+
+            <nav class="p-4 flex-1 space-y-1.5 overflow-y-auto no-scrollbar">
+                <button onclick="switchView('overview')" id="nav-overview" class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 smooth-transition cursor-pointer bg-amber-600 text-white shadow-md shadow-amber-600/10">
+                    <i class="fa-solid fa-sliders text-sm w-4 text-center"></i>
+                    <span>Operations Control</span>
+                </button>
+
+                <button onclick="switchView('accounts')" id="nav-accounts" class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 smooth-transition cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                    <i class="fa-solid fa-users-gear text-sm w-4 text-center"></i>
+                    <span>User Management</span>
+                </button>
+                
+                <button onclick="switchView('repository')" id="nav-repository" class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between smooth-transition cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-database text-sm w-4 text-center"></i>
+                        <span>File Repository</span>
+                    </div>
+                    <span id="sidebarCounterBadge" class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-slate-400 font-bold rounded-md border border-slate-700/40">0</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-[#0b0f19]/30 space-y-3">
+            <div class="flex items-center gap-3 px-2">
+                <div class="h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 font-mono font-bold text-xs border border-slate-700">
+                    A
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span id="displayAdminUser" class="text-xs font-bold text-slate-200 block truncate">admin_root</span>
+                    <span class="text-[10px] text-emerald-400 block font-medium">● Network Secure</span>
+                </div>
+            </div>
+            <button onclick="handleSystemLogout()" class="w-full py-2 bg-slate-800 hover:bg-rose-600 hover:text-white border border-slate-700/50 text-slate-300 text-xs rounded-xl smooth-transition cursor-pointer font-semibold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-power-off text-[10px]"></i> Terminate Session
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#0b0f19]">
+        
+        <header class="h-16 border-b border-slate-800/80 bg-[#0b0f19]/90 backdrop-blur-md px-4 flex items-center justify-between md:hidden shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 bg-amber-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+                </div>
+                <span class="text-sm font-bold tracking-tight text-white">LasanPortal Terminal</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="switchView('overview')" class="p-2 text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-sliders"></i></button>
+                <button onclick="switchView('accounts')" class="p-2 text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-users-gear"></i></button>
+                <button onclick="switchView('repository')" class="p-2 text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-database"></i></button>
+                <button onclick="handleSystemLogout()" class="p-2 text-rose-400 text-xs"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8 no-scrollbar">
+
+            <div id="view-overview" class="space-y-8 dynamic-view-pane">
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-500 text-sm"></i> Core Operations Infrastructure
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-1">Deploy new academic modules, question maps, and coordinate syllabus assets.</p>
+                </div>
+
+                <div class="p-6 bg-[#111827] border border-slate-800 rounded-2xl shadow-xl">
+                    <div class="mb-6">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-amber-500"></i> Resource Matrix Vault Deployment
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Upload files directly to local storage and bind records matching target backend arrays.</p>
+                    </div>
+
+                    <div id="uploadAlert" class="hidden p-3 text-xs rounded-lg mb-5 items-center gap-2.5">
+                        <i id="uploadAlertIcon" class="fa-solid"></i>
+                        <span id="uploadAlertMessage"></span>
+                    </div>
+
+                    <form id="vaultUploadForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" enctype="multipart/form-data">
+                        <div class="space-y-1.5">
+                            <label for="materialTitle" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Resource Title</label>
+                            <input type="text" id="materialTitle" required placeholder="e.g., Pure Math 2 Mock Variant" 
+                                class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="materialSubject" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Subject Field</label>
+                            <input type="text" id="materialSubject" required placeholder="e.g., Mathematics, Physics, Computer Science" 
+                                class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="materialCategory" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Classification Category</label>
+                            <select id="materialCategory" required class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                                <option value="Textbook">Textbook</option>
+                                <option value="Edexcel">Edexcel</option>
+                                <option value="Cambridge">Cambridge</option>
+                                <option value="KCSE">KCSE</option>
+                                <option value="ID">ID</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="materialVariant" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Document Type / Variant Mapping</label>
+                            <select id="materialVariant" required class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                                <option value="Question Paper">Question Paper (QP)</option>
+                                <option value="Mark Scheme">Mark Scheme (MS)</option>
+                                <option value="Insert Sheet">Insert / Formula Resource Sheet</option>
+                                <option value="Textbook Unit">Full Textbook / Module Resource Pack</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="materialPrice" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Access Cost (KES)</label>
+                            <input type="number" id="materialPrice" required min="0" placeholder="0 for Free Access" 
+                                class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="materialFile" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Document Source Payload</label>
+                            <input type="file" id="materialFile" required 
+                                class="w-full bg-[#0b0f19] text-xs text-slate-400 px-3 py-1.5 rounded-lg border border-slate-800 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 smooth-transition focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div class="lg:col-span-3 flex justify-end pt-2">
+                            <button type="submit" id="uploadBtn" class="px-8 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs rounded-lg shadow-md cursor-pointer smooth-transition whitespace-nowrap">
+                                <i class="fa-solid fa-arrow-up-from-bracket mr-1.5"></i> Deploy Vault Asset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="view-accounts" class="space-y-8 dynamic-view-pane hidden">
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-amber-500 text-sm"></i> User Management Engine
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-1">Audit profile tokens, check curriculum authorization scopes, and create or strip credentials.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div class="p-6 bg-[#111827] border border-slate-800 rounded-2xl shadow-xl space-y-5 lg:col-span-1">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-amber-500"></i> Provision Token
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Generate dynamic student/teacher clearances instantly.</p>
+                        </div>
+
+                        <div id="provisionAlert" class="hidden p-3 text-xs rounded-lg items-center gap-2.5">
+                            <i id="alertIcon" class="fa-solid"></i>
+                            <span id="alertMessage"></span>
+                        </div>
+
+                        <form id="provisionUserForm" class="space-y-4">
+                            <div class="space-y-1.5">
+                                <label for="newUsername" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Username</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">@</span>
+                                    <input type="text" id="newUsername" required placeholder="student_mishra" 
+                                        class="w-full bg-[#0b0f19] text-xs text-slate-200 pl-7 pr-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label for="newPassword" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Temporary Password</label>
+                                <input type="password" id="newPassword" required placeholder="••••••••••••" 
+                                    class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label for="newRole" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Authorization Profile</label>
+                                <select id="newRole" class="w-full bg-[#0b0f19] text-xs text-slate-200 px-3 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                                    <option value="student">Student (Marketplace)</option>
+                                    <option value="teacher">Teacher (Manager)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" id="provisionBtn" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs rounded-lg shadow-md cursor-pointer smooth-transition whitespace-nowrap">
+                                Create Account Profile
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="p-6 bg-[#111827] border border-slate-800 rounded-2xl shadow-xl lg:col-span-2 flex flex-col">
+                        <div class="mb-4 flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-address-book text-amber-500"></i> Active Core Directory
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Total registered users linked across cluster data streams.</p>
+                            </div>
+                            <button onclick="syncAccountDirectory()" class="p-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 rounded-lg smooth-transition text-xs">
+                                <i id="userSyncIcon" class="fa-solid fa-rotate text-[11px]"></i>
+                            </button>
+                        </div>
+
+                        <div class="bg-[#0b0f19]/40 border border-slate-800/80 rounded-xl overflow-hidden overflow-y-auto max-h-[380px] no-scrollbar">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-[9px] font-bold uppercase tracking-wider text-slate-400 bg-[#0d131f]">
+                                        <th class="py-2.5 px-4">Profile Handle</th>
+                                        <th class="py-2.5 px-4">System Scope Role</th>
+                                        <th class="py-2.5 px-4 text-right">Access Controls</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="accountTableBody" class="divide-y divide-slate-800/50 text-xs">
+                                    <tr>
+                                        <td colspan="3" class="py-12 text-center text-slate-500 text-xs">
+                                            <i class="fa-solid fa-spinner animate-spin text-amber-500 mr-1"></i> Instantiating profiles...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-repository" class="space-y-8 dynamic-view-pane hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-database text-amber-500 text-sm"></i> File Repository Matrix
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">Review deployment integrity metrics, trace payload weight distribution, and configure bulk deletions.</p>
+                    </div>
+                    <button onclick="syncGlobalRepository()" class="self-start px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold rounded-xl flex items-center gap-2 smooth-transition cursor-pointer">
+                        <i id="syncIcon" class="fa-solid fa-arrows-rotate"></i> Refresh Records
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-[#111827] border border-slate-800/80 rounded-xl p-4">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Tracked Items</span>
+                        <span id="statTotal" class="text-2xl font-extrabold text-white block mt-1">0</span>
+                    </div>
+                    <div class="bg-[#111827] border border-slate-800/80 rounded-xl p-4">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Premium Vault Assets</span>
+                        <span id="statPremium" class="text-2xl font-extrabold text-amber-400 block mt-1">0</span>
+                    </div>
+                    <div class="bg-[#111827] border border-slate-800/80 rounded-xl p-4">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Storage Allocation</span>
+                        <span id="statStorageFootprint" class="text-2xl font-extrabold text-amber-500 block mt-1">0.00 KB</span>
+                    </div>
+                    <div class="bg-[#111827] border border-slate-800/80 rounded-xl p-4">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Open Access Items</span>
+                        <span id="statFree" class="text-2xl font-extrabold text-emerald-400 block mt-1">0</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between p-4 bg-[#111827] border border-slate-800 rounded-xl">
+                    <div class="relative flex-1 max-w-md">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="repoSearchInput" oninput="executeClientSideFilters()" placeholder="Search documents by title or target subject..." 
+                            class="w-full bg-[#0b0f19] text-xs text-slate-200 pl-9 pr-4 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:border-amber-500 smooth-transition">
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5 overflow-x-auto no-scrollbar">
+                        <button onclick="setCategoryFilter('ALL')" id="filter-tab-ALL" class="px-3 py-2 bg-amber-600 text-white font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">All Bundles</button>
+                        <button onclick="setCategoryFilter('Textbook')" id="filter-tab-Textbook" class="px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">Textbooks</button>
+                        <button onclick="setCategoryFilter('Edexcel')" id="filter-tab-Edexcel" class="px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">Edexcel</button>
+                        <button onclick="setCategoryFilter('Cambridge')" id="filter-tab-Cambridge" class="px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">Cambridge</button>
+                        <button onclick="setCategoryFilter('KCSE')" id="filter-tab-KCSE" class="px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">KCSE</button>
+                        <button onclick="setCategoryFilter('ID')" id="filter-tab-ID" class="px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer">IDs</button>
+                    </div>
+                </div>
+
+                <div id="bulkActionsPanel" class="hidden items-center justify-between px-6 py-3.5 bg-rose-950/40 border border-rose-900/50 rounded-xl text-xs text-rose-300 animate-fadeIn">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-nodes text-rose-400 animate-pulse"></i>
+                        <span class="font-medium text-slate-300"><span id="bulkSelectCount" class="font-extrabold text-rose-400">0</span> database assets selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="triggerBulkPurgePipeline()" id="bulkDeleteBtn" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg smooth-transition cursor-pointer">
+                            <i class="fa-regular fa-trash-can mr-1"></i> Purge Selected Items
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="px-6 py-4 bg-[#0d131f] border-b border-slate-800">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Database Repository Registry</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800/80 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-[#0b0f19]/30">
+                                    <th class="py-3.5 px-4 w-12 text-center">
+                                        <input type="checkbox" id="masterTableSelector" onclick="toggleAllTableCheckboxes(this)" class="accent-amber-500 h-3.5 w-3.5 rounded border-slate-700 bg-slate-900">
+                                    </th>
+                                    <th class="py-3.5 px-4">Resource Profile</th>
+                                    <th class="py-3.5 px-4">Subject</th>
+                                    <th class="py-3.5 px-4">Category</th>
+                                    <th class="py-3.5 px-4">Variant Type</th>
+                                    <th class="py-3.5 px-4">Payload Size</th>
+                                    <th class="py-3.5 px-4">Cost Structure</th>
+                                    <th class="py-3.5 px-6 text-right">Operational Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody" class="divide-y divide-slate-800/60 text-xs">
+                                <tr id="inventoryLoaderRow">
+                                    <td colspan="8" class="py-12 text-center text-slate-500">
+                                        <i class="fa-solid text-amber-500 fa-spinner animate-spin text-lg mb-2 block"></i>
+                                        <span>Reading active file streams directly from system repository tables...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Global variables initialized explicitly
+	const absolutePortRoot = 'http://localhost:5000';
+        let globalRepositoryCache = [];
+        let currentActiveCategoryFilter = 'ALL';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStamp = localStorage.getItem('lasan_user');
+            if (userStamp) {
+                document.getElementById('displayAdminUser').innerText = userStamp;
+            }
+            // Fetch initial badges and load base view setup context
+            syncGlobalRepositoryBadgeOnly();
+        });
+
+        // 1. RUNTIME VIEW PANELS TOGGLE ROUTER
+        function switchView(targetPaneId) {
+            document.querySelectorAll('.dynamic-view-pane').forEach(pane => pane.classList.add('hidden'));
+            document.getElementById(`view-${targetPaneId}`).classList.remove('hidden');
+
+            const views = ['overview', 'accounts', 'repository'];
+            views.forEach(v => {
+                const button = document.getElementById(`nav-${v}`);
+                if (!button) return;
+                
+                if (v === targetPaneId) {
+                    button.className = "w-full px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 smooth-transition cursor-pointer bg-amber-600 text-white shadow-md shadow-amber-600/10";
+                } else {
+                    button.className = "w-full px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 smooth-transition cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+                }
+            });
+
+            if (targetPaneId === 'repository') syncGlobalRepository();
+            if (targetPaneId === 'accounts') syncAccountDirectory();
+        }
+
+        // 2. TERMINATE USER SESSION MANAGEMENT CLEANER
+        function handleSystemLogout() {
+            localStorage.clear();
+            window.location.href = 'admin-login.html';
+        }
+
+        // 3. CORE SECURE DATA ARRAY SYNC PIPELINE (USER MANAGEMENT HUB)
+        async function syncAccountDirectory() {
+            const userTableBody = document.getElementById('accountTableBody');
+            const syncIcon = document.getElementById('userSyncIcon');
+            const token = localStorage.getItem('lasan_token');
+
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            try {
+                const response = await fetch(`${absolutePortRoot}/api/auth/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error();
+                
+                const users = await response.json();
+                userTableBody.innerHTML = '';
+
+                if (users.length === 0) {
+                    userTableBody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-500 font-mono">No active user profile credentials found in db store.</td></tr>`;
+                    return;
+                }
+
+                users.forEach(user => {
+                    let roleBadgeClass = "bg-blue-500/10 border-blue-500/20 text-blue-400";
+                    if (user.role === 'teacher') roleBadgeClass = "bg-purple-500/10 border-purple-500/20 text-purple-400";
+                    if (user.role === 'admin') roleBadgeClass = "bg-amber-500/10 border-amber-500/20 text-amber-400";
+
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-800/40 hover:bg-slate-800/10 smooth-transition";
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-4 font-semibold text-slate-200">
+                            <span class="text-slate-500 font-normal">@</span>${user.username}
+                        </td>
+                        <td class="py-2.5 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${roleBadgeClass}">
+                                ${user.role}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-4 text-right">
+                            ${user.role !== 'admin' ? `
+                                <button onclick="terminateUserAccount('${user._id || user.id}', this)" class="px-2 py-1 bg-slate-900 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/20 rounded-md text-[10px] font-bold smooth-transition cursor-pointer">
+                                    Remove
+                                </button>
+                            ` : `<span class="text-[10px] text-slate-500 italic pr-2">Protected</span>`}
+                        </td>
+                    `;
+                    userTableBody.appendChild(tr);
+                });
+            } catch (err) {
+                userTableBody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-rose-400 text-xs font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Sync mapping dropped.</td></tr>`;
+            } finally {
+                if (syncIcon) setTimeout(() => syncIcon.classList.remove('animate-spin'), 500);
+            }
+        }
+
+        // 4. USER PROVISIONING ACCONT SUBMIT ENGINE HANDLER
+        document.getElementById('provisionUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('newUsername');
+            const passwordInput = document.getElementById('newPassword');
+            const roleSelect = document.getElementById('newRole');
+            const alertContainer = document.getElementById('provisionAlert');
+            const alertIcon = document.getElementById('alertIcon');
+            const alertMessage = document.getElementById('alertMessage');
+            const token = localStorage.getItem('lasan_token');
+
+            try {
+                const response = await fetch(`${absolutePortRoot}/api/auth/register-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput.value.trim(),
+                        password: passwordInput.value,
+                        role: roleSelect.value
+                    })
+                });
+
+                const data = await response.json();
+                alertContainer.className = "p-3 text-xs rounded-lg flex items-center gap-2.5";
+
+                if (response.ok) {
+                    alertContainer.classList.add('bg-emerald-500/10', 'border', 'border-emerald-500/20', 'text-emerald-400');
+                    alertIcon.className = "fa-solid fa-circle-check";
+                    alertMessage.innerText = "✓ Account compiled successfully into core registry file stacks.";
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                    syncAccountDirectory();
+                } else {
+                    alertContainer.classList.add('bg-rose-500/10', 'border', 'border-rose-500/20', 'text-rose-400');
+                    alertIcon.className = "fa-solid fa-circle-xmark";
+                    alertMessage.innerText = data.message || "Failed provisioning validation restrictions.";
+                }
+            } catch (err) {
+                alertContainer.className = "p-3 text-xs rounded-lg flex items-center gap-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                alertIcon.className = "fa-solid fa-triangle-exclamation";
+                alertMessage.innerText = "Network transmission fault creating profile configuration matrix.";
+            }
+        });
+
+        // 5. INDIVIDUAL ACCOUNT PROFILE DESTRUCTION STRIP METHOD INTERCEPTOR
+        async function terminateUserAccount(userId, elementRowBtn) {
+            if (!confirm("Are you certain you want to purge this profile verification token from system storage arrays?")) return;
+            const token = localStorage.getItem('lasan_token');
+
+            try {
+                const response = await fetch(`${absolutePortRoot}/api/auth/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    syncAccountDirectory();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || "Operation rejected by auth verification structures.");
+                }
+            } catch (err) {
+                alert("Server connection link drop encountered completing profile deletion truncate.");
+            }
+        }
+
+// 6. MULTIPART FORM RESOURCE VAULT DEPLOYMENT ENGINE (FORMDATA PAYLOAD FIX)
+        document.getElementById('vaultUploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('uploadBtn');
+            const alertContainer = document.getElementById('uploadAlert');
+            const alertIcon = document.getElementById('uploadAlertIcon');
+            const alertMessage = document.getElementById('uploadAlertMessage');
+            const token = localStorage.getItem('lasan_token');
+            const fileInput = document.getElementById('materialFile');
+
+            if (!fileInput.files[0]) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const payloadFormData = new FormData();
+            payloadFormData.append('title', document.getElementById('materialTitle').value.trim());
+            payloadFormData.append('subject', document.getElementById('materialSubject').value.trim());
+            payloadFormData.append('category', document.getElementById('materialCategory').value);
+            payloadFormData.append('variant', document.getElementById('materialVariant').value);
+            payloadFormData.append('price', document.getElementById('materialPrice').value);
+            payloadFormData.append('materialFile', fileInput.files[0]);
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Processing...`;
+            
+            try {	
+                const response = await fetch(`${absolutePortRoot}/api/materials`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: payloadFormData
+                });
+
+                const data = await response.json();
+                alertContainer.className = "p-3 text-xs rounded-lg mb-5 flex items-center gap-2.5";
+
+                if (response.ok) {
+                    alertContainer.classList.add('bg-emerald-500/10', 'border', 'border-emerald-500/20', 'text-emerald-400');
+                    alertIcon.className = "fa-solid fa-cloud-text-selection";
+                    alertMessage.innerText = "✓ Vault resource initialized.";
+                    document.getElementById('vaultUploadForm').reset();
+                    syncGlobalRepositoryBadgeOnly();
+                } else {
+                    throw new Error(data.message || "Upload rejected by server.");
+                }
+            } catch (err) {
+                alertContainer.className = "p-3 text-xs rounded-lg mb-5 flex items-center gap-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                alertIcon.className = "fa-solid fa-triangle-exclamation";
+                alertMessage.innerText = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-arrow-up-from-bracket mr-1.5"></i> Deploy Vault Asset`;
+            }
+        });
+
+// 7. FILE REPOSITORY INVENTORY ARRAY GLOBAL SYNC CONTEXT
+async function syncGlobalRepository() {
+    const token = localStorage.getItem('lasan_token');
+    
+    if (!token) {
+        console.error("CRITICAL: No token found in localStorage!");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${absolutePortRoot}/api/materials`, {
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + token
+                // 'Content-Type' is usually not needed for GET requests
+            }
+        });
+
+        if (response.ok) {
+            const materials = await response.json();
+            console.log("Successfully fetched materials:", materials);
+            // Now, call your function that builds the HTML table here!
+            // renderMaterialsTable(materials); 
+        } else {
+            console.error("Server rejected the request. Status:", response.status);
+        }
+    } catch (err) {
+        console.error("Network error:", err);
+    }
+}
+
+      // 8. SIDEBAR BADGES ONLY ISOLATED POLLING UTILITY
+        async function syncGlobalRepositoryBadgeOnly() {
+            try {
+                const response = await fetch(`${absolutePortRoot}/api/materials`);
+                if (response.ok) {
+                    const items = await response.json();
+                    document.getElementById('sidebarCounterBadge').innerText = items.length || 0;
+                }
+            } catch (e) {
+                console.error("Badge parsing delay skipped.");
+            }
+        }
+
+        // 9. CLIENT-SIDE SEARCH MULTI-FILTER COMPILER PATTERN ENGINE
+        function executeClientSideFilters() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            const searchStr = document.getElementById('repoSearchInput').value.toLowerCase().trim();
+            
+            // Re-zero master layout table checkbox selection indicators
+            document.getElementById('masterTableSelector').checked = false;
+            evaluateBulkSelectionPanelStateVisibility();
+
+            // Filter calculation loops
+            const filteredArray = globalRepositoryCache.filter(item => {
+                const matchesCategory = (currentActiveCategoryFilter === 'ALL' || item.category === currentActiveCategoryFilter);
+                const matchesSearch = (!searchStr || 
+                    item.title.toLowerCase().includes(searchStr) || 
+                    item.subject.toLowerCase().includes(searchStr)
+                );
+                return matchesCategory && matchesSearch;
+            });
+
+            // Recompute numerical metrics cards dynamically matching selection stack arrays
+            recalculateOperationalInsightMetricCards(filteredArray);
+
+            tableBody.innerHTML = '';
+            if (filteredArray.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-slate-500 font-mono text-xs">No repository entry maps found parsing existing runtime constraint combinations.</td></tr>`;
+                return;
+            }
+
+            filteredArray.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800/40 hover:bg-slate-800/10 smooth-transition table-item-row";
+                
+                // Formulate size text metric representation variables cleanly
+                let displayBytesString = "0.00 KB";
+                if (item.fileSize) {
+                    displayBytesString = item.fileSize > 1024 * 1024 
+                        ? `${(item.fileSize / (1024 * 1024)).toFixed(2)} MB` 
+                        : `${(item.fileSize / 1024).toFixed(2)} KB`;
+                }
+
+                const priceValueNumeric = parseFloat(item.price) || 0;
+                const costBadgeTemplate = priceValueNumeric === 0 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase font-bold tracking-wide">Open Access</span>`
+                    : `<span class="font-mono text-amber-400 font-bold">${priceValueNumeric.toLocaleString()} KES</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center">
+                        <input type="checkbox" data-id="${item._id || item.id}" onclick="evaluateBulkSelectionPanelStateVisibility()" class="repo-row-checkbox accent-amber-500 h-3.5 w-3.5 rounded border-slate-700 bg-slate-900">
+                    </td>
+                    <td class="py-3 px-4 font-semibold text-white max-w-xs truncate" title="${item.title}">${item.title}</td>
+                    <td class="py-3 px-4 text-slate-300">${item.subject}</td>
+                    <td class="py-3 px-4 font-mono text-slate-400 text-[11px]">${item.category}</td>
+                    <td class="py-3 px-4 text-slate-400">${item.variant || 'Question Paper'}</td>
+                    <td class="py-3 px-4 font-mono text-[11px] text-slate-500">${displayBytesString}</td>
+                    <td class="py-3 px-4">${costBadgeTemplate}</td>
+                    <td class="py-3 px-6 text-right">
+                        <button onclick="purgeSingleRepositoryItem('${item._id || item.id}')" class="p-1 px-2.5 bg-slate-900 hover:bg-rose-950/30 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/20 rounded-lg text-[10px] font-bold smooth-transition cursor-pointer">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // 10. METRICS INSIGHT CALCULATOR COMPILING NODE UTILITY
+        function recalculateOperationalInsightMetricCards(dataArrayScope) {
+            let totalBytesTrackedCount = 0;
+            let premiumAssetsCount = 0;
+            let openAccessCount = 0;
+
+            dataArrayScope.forEach(item => {
+                totalBytesTrackedCount += parseInt(item.fileSize) || 0;
+                if ((parseFloat(item.price) || 0) > 0) {
+                    premiumAssetsCount++;
+                } else {
+                    openAccessCount++;
+                }
+            });
+
+            let footprintDisplayString = "0.00 KB";
+            if (totalBytesTrackedCount > 1024 * 1024) {
+                footprintDisplayString = `${(totalBytesTrackedCount / (1024 * 1024)).toFixed(2)} MB`;
+            } else if (totalBytesTrackedCount > 0) {
+                footprintDisplayString = `${(totalBytesTrackedCount / 1024).toFixed(2)} KB`;
+            }
+
+            document.getElementById('statTotal').innerText = dataArrayScope.length;
+            document.getElementById('statPremium').innerText = premiumAssetsCount;
+            document.getElementById('statFree').innerText = openAccessCount;
+            document.getElementById('statStorageFootprint').innerText = footprintDisplayString;
+            document.getElementById('sidebarCounterBadge').innerText = globalRepositoryCache.length;
+        }
+
+        // 11. ACTIVE TAB CATEGORY FILTER GRAPHICAL STATE CONTROLLER
+        function setCategoryFilter(categoryTarget) {
+            currentActiveCategoryFilter = categoryTarget;
+            const tabElements = ['ALL', 'Textbook', 'Edexcel', 'Cambridge', 'KCSE', 'ID'];
+            
+            tabElements.forEach(tab => {
+                const targetBtn = document.getElementById(`filter-tab-${tab}`);
+                if (!targetBtn) return;
+                if (tab === categoryTarget) {
+                    targetBtn.className = "px-3 py-2 bg-amber-600 text-white font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer";
+                } else {
+                    targetBtn.className = "px-3 py-2 bg-[#0b0f19] border border-slate-800 text-slate-400 hover:text-slate-200 font-semibold text-[11px] rounded-lg smooth-transition cursor-pointer";
+                }
+            });
+            executeClientSideFilters();
+        }
+
+        // 12. MASTER TABLE CHECKBOXES SELECTION SWITCH ROUTINE
+        function toggleAllTableCheckboxes(masterCheckboxNode) {
+            document.querySelectorAll('.repo-row-checkbox').forEach(box => {
+                box.checked = masterCheckboxNode.checked;
+            });
+            evaluateBulkSelectionPanelStateVisibility();
+        }
+
+        // 13. BULK CONTROL INTERFACE VISIBILITY EVALUATION HANDLER
+        function evaluateBulkSelectionPanelStateVisibility() {
+            const checkboxes = document.querySelectorAll('.repo-row-checkbox:checked');
+            const bulkPanel = document.getElementById('bulkActionsPanel');
+            const counterText = document.getElementById('bulkSelectCount');
+
+            if (checkboxes.length > 0) {
+                bulkPanel.style.display = 'flex';
+                counterText.innerText = checkboxes.length;
+            } else {
+                bulkPanel.style.display = 'none';
+            }
+        }
+
+        // 14. INDIVIDUAL VAULT DOCUMENT EXTRUCTION DISPOSAL METHOD
+        async function purgeSingleRepositoryItem(itemId) {
+            if (!confirm("Are you sure you want to permanently strip this curriculum file out of deployment servers and data indexes?")) return;
+            const token = localStorage.getItem('lasan_token');
+
+            try {
+                const response = await fetch(`${absolutePortRoot}/api/materials/${itemId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    syncGlobalRepository();
+                } else {
+                    alert("Server structure rejected deletion procedure verify administration privileges.");
+                }
+            } catch (err) {
+                alert("Network pipeline exception encountered isolating registry file index.");
+            }
+        }
+
+
+
+        // 15. TRANSACTIONAL BULK REPOSITORY DELETION COMPILER PIPELINE
+        async function triggerBulkPurgePipeline() {
+            const targetedCheckboxes = document.querySelectorAll('.repo-row-checkbox:checked');
+            if (targetedCheckboxes.length === 0) return;
+            
+            if (!confirm(`CRITICAL WARNING:\nYou are initializing a sequential core truncation loop targeting [ ${targetedCheckboxes.length} ] assets simultaneously.\nThis operation cannot be reversed. Proceed?`)) return;
+            
+            const token = localStorage.getItem('lasan_token');
+            const purgeButton = document.getElementById('bulkDeleteBtn');
+            
+            purgeButton.disabled = true;
+            purgeButton.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Executing Truncate Loop...`;
+
+            // Extract native arrays of ID mapping keys to feed directly into sequential operations or single bulk parameters matching backend architectures
+            const targetedIdsArray = Array.from(targetedCheckboxes).map(box => box.getAttribute('data-id'));
+            let executionErrorsCount = 0;
+
+            // Execute loop requests to process array targets securely
+            for (const itemKey of targetedIdsArray) {
+                try {
+                    const response = await fetch(`${absolutePortRoot}/api/materials/${itemKey}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) executionErrorsCount++;
+                } catch (e) {
+                    executionErrorsCount++;
+                }
+            }
+
+            purgeButton.disabled = false;
+            purgeButton.innerHTML = `<i class="fa-regular fa-trash-can mr-1"></i> Purge Selected Items`;
+
+            if (executionErrorsCount > 0) {
+                alert(`Pipeline loop completed with warnings:\n[ ${executionErrorsCount} ] data items failed structure deletion boundaries.`);
+            }
+	
+            // Sync global state immediately to flush graphics cards out
+            syncGlobalRepository();
+        }
+
+
+	async function loadDashboardMaterials() {
+        try {
+            const response = await fetch('http://localhost:5000/api/materials');
+            
+            // Check if the response is actually JSON
+            if (!response.ok) throw new Error("Failed to load materials");
+            
+            const materials = await response.json();
+            
+            // 2. Logic to display the materials on the page
+            console.log("Materials loaded:", materials);
+            // Example: renderMaterials(materials); 
+            
+        } catch (err) {
+            console.error("Dashboard Load Error:", err);
+        }
+    }
+
+	// 3. Run this function as soon as the page is finished loading
+    window.onload = loadDashboardMaterials;
+    </script>
+</body>
+</html>

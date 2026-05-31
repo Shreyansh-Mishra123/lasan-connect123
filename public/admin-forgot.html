@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Recovery | Lasan Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="1776759415-161570595069e73277f252e!favicon-512.png">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .login-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 2.5rem; 
+            background: #111; 
+            border: 1px solid #222; 
+            border-radius: 10px; 
+        }
+
+        .back-home { 
+            position: absolute; 
+            top: 15px; 
+            left: 15px; 
+            color: #555; 
+            text-decoration: none; 
+            font-size: 0.7rem; 
+            text-transform: uppercase;
+            transition: 0.3s; 
+        }
+        .back-home:hover { color: #fff; }
+
+        .icon-box { width: 50px; height: 50px; background: #fff; color: #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem; font-size: 1.2rem; }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .header p { color: #666; font-size: 0.9rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+        input { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; margin-top: 1rem; background: #fff; color: #000; transition: 0.3s; }
+        .btn:hover { background: #ccc; }
+        .footer-link { text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: #666; }
+        .footer-link a { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Home</a>
+
+    <div class="icon-box">
+        <i class="fa-solid fa-key"></i>
+    </div>
+    <div class="header">
+        <h1>Admin Security Reset</h1>
+        <p>Enter your Administrator Identity to trigger the security handshake.</p>
+    </div>
+    <form>
+        <div class="form-group">
+            <label for="adminIdentity">System Admin Identity</label>
+            <input type="text" id="adminIdentity" placeholder="e.g., admin_root" required>
+        </div>
+        <button type="submit" class="btn">Trigger Recovery Handshake</button>
+    </form>
+    <div class="footer-link">
+        <a href="admin-login.html">Back to Admin Terminal</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="1776759415-161570595069e73277f252e!favicon-512.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>LasanPortal | Leading Educational Services</title>
+    <style>
+        :root { --accent: #fff; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background-color: #000; color: #fff; margin: 0; line-height: 1.6; }
+        
+        /* Navbar */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 8%; border-bottom: 1px solid #222; }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+        .nav-links { display: flex; align-items: center; gap: 30px; list-style: none; font-size: 0.9rem; }
+        .nav-links a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        .nav-links a:hover { color: #fff; }
+        
+        /* Premium Pill Buttons */
+        .btn { padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-block; transition: all 0.3s ease; border: 1px solid #fff; cursor: pointer; }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-primary:hover { background: #000; color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+        .btn-login { border: 1px solid #fff; color: #fff; padding: 8px 20px; border-radius: 50px; }
+        .btn-login:hover { background: #fff; color: #000; }
+
+        /* Hero */
+        .hero { padding: 8rem 8% 5rem; display: flex; align-items: center; justify-content: space-between; background: radial-gradient(circle at 80% 20%, #111, #000); }
+        .hero-text { max-width: 55%; }
+        .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero p { font-size: 1.2rem; color: #888; margin-bottom: 2.5rem; }
+        
+        .hero-image { width: 450px; height: 350px; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
+        .hero-image img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Cards */
+        .section-title { padding: 0 8%; font-size: 2rem; margin-bottom: 2rem; }
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 2rem 8% 5rem; }
+        .card { padding: 3rem; border-radius: 20px; background: #0a0a0a; border: 1px solid #222; transition: 0.4s; }
+        .card:hover { border-color: #555; transform: translateY(-5px); }
+        .card h2 { margin-top: 0; font-size: 1.8rem; }
+        .card-link { color: #fff; text-decoration: none; font-weight: bold; margin-top: 20px; display: block; }
+
+        /* Footer */
+        footer { background: #050505; padding: 4rem 8%; border-top: 1px solid #111; }
+        .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3rem; }
+        .footer-grid h4 { margin-bottom: 1rem; color: #fff; }
+        .footer-grid p { color: #555; font-size: 0.9rem; }
+        .footer-bottom { margin-top: 4rem; text-align: center; color: #333; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">LASAN<span style="color: #666;">PORTAL</span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="signup.html">Predicted</a></li>
+        <li><a href="signup.html">Library</a></li>
+        <li><a href="student-login.html" class="btn btn-login">Student Login</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="hero-text">
+        <h1>Advanced Learning, <br><span style="color: #555;">Simplified.</span></h1>
+        <p>Access the most comprehensive library of solved past papers, predicted guess papers, and premium study materials for CAIE.</p>
+        <a href="signup.html" class="btn btn-primary">Start Your Journey</a>
+    </div>
+    <div class="hero-image">
+        <img src="https://img.magnific.com/free-photo/serious-teacher-checking-assignment-two-students_1262-15174.jpg?semt=ais_hybrid&w=740&q=80" alt="Learning">
+    </div>
+</section>
+
+<h2 class="section-title">Core Modules</h2>
+<div class="cards">
+    <div class="card">
+        <i class="fa-solid fa-file-pen" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <h2>Solved Past Papers</h2>
+        <p>Complete 2026 collection with expert-verified solutions to ensure you understand every concept.</p>
+        <a href="signup.html" class="card-link">Browse Library &rarr;</a>
+    </div>
+    <div class="card">
+        <i class="fa-solid fa-microchip" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <h2>2026 AI Guess Papers</h2>
+        <p>Our proprietary predictive modeling delivers up to 98% accuracy for upcoming examinations.</p>
+        <a href="signup.html" class="card-link">View Predictions &rarr;</a>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-grid">
+        <div><h3>LasanPortal</h3><p>Setting the standard in digital education resources since 2016.</p></div>
+        <div><h4>Platform</h4><p>Dashboard<br>Study Groups<br>Analytics</p></div>
+        <div><h4>Resources</h4><p>eBooks<br>Topic Notes<br>Exam Syllabi</p></div>
+        <div><h4>Access</h4><p><a href="admin-login.html" style="color: #555; text-decoration: none;">Admin Console</a><br>Privacy Policy<br>Support</p></div>
+    </div>
+    <div class="footer-bottom">
+        <p>Copyright © 2026 LasanPortal. Powered by AI Agency Infrastructure Kenya Limited.</p>
+    </div>
+</footer>
+
+</body>
+</html>
