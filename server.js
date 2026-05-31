@@ -60,9 +60,6 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, cb) => cb(null, user));
 passport.deserializeUser((obj, cb) => cb(null, obj));
 
-// --- DATABASE ---
-const db = new sqlite3.Database(path.join(__dirname, 'lasan_portal.db'));
-
 // --- GITHUB ROUTES ---
 app.get('/api/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
 
